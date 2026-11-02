@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "QQ连接设置",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["enabled", "connectionRef", "accountId", "contacts", "groups", "proactiveContacts", "updatePolicy"],
+  "properties": {
+    "enabled": {"type": "boolean", "default": false},
+    "connectionRef": {"type": "string", "maxLength": 256, "description": "本体保管的连接引用，不是凭据"},
+    "accountId": {"type": "string", "pattern": "^(?:|[1-9][0-9]{0,19})$"},
+    "contacts": {"type": "array", "uniqueItems": true, "maxItems": 10000, "items": {"type": "string", "pattern": "^[1-9][0-9]{0,19}$"}},
+    "groups": {"type": "array", "maxItems": 10000, "items": {
+      "type": "object", "additionalProperties": false, "required": ["id", "naturalParticipation", "quietOpener", "highUsageAcknowledged"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[1-9][0-9]{0,19}$"},
+        "naturalParticipation": {"type": "boolean", "default": false},
+        "quietOpener": {"type": "boolean", "default": false},
+        "highUsageAcknowledged": {"type": "boolean", "default": false}
+      },
+      "allOf": [{"if": {"properties": {"quietOpener": {"const": true}}}, "then": {"properties": {"highUsageAcknowledged": {"const": true}}}}]
+    }},
+    "proactiveContacts": {"type": "boolean", "default": false},
+    "updatePolicy": {"type": "string", "enum": ["manual", "automatic"], "default": "manual"},
+    "replyStyle": {"type": "string", "enum": ["inherit", "brief", "natural", "detailed"], "default": "inherit"},
+    "conversationReplyStyles": {"type": "object", "maxProperties": 10000, "default": {}, "propertyNames": {"pattern": "^(private|group):[1-9][0-9]{0,19}$"}, "additionalProperties": {"type": "string", "enum": ["inherit", "brief", "natural", "detailed"]}}
+  },
+  "allOf": [{"if": {"properties": {"enabled": {"const": true}}}, "then": {"properties": {"connectionRef": {"minLength": 1}, "accountId": {"minLength": 1}}}}]
+}

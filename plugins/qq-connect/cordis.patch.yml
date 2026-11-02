@@ -1,0 +1,3 @@
+- insert:
+    - id: ai-buddy-qq-connect
+      name: '@ai-buddy/qq-connect'

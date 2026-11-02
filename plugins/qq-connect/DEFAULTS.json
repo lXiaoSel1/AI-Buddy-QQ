@@ -1,0 +1,13 @@
+{
+  "enabled": false,
+  "connectionRef": "",
+  "accountId": "",
+  "contacts": [],
+  "groups": [],
+  "proactiveContacts": false,
+  "updatePolicy": "manual",
+  "replyStyle": "inherit",
+  "conversationReplyStyles": {},
+  "replyStyle": "inherit",
+  "conversationReplyStyles": {}
+}

@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "classification": "independent-plugin-domain-client-shared-fixture-tests",
+  "plugin": "qq-connect",
+  "retainedTestFiles": [
+    "plugins/qq-connect/test/acknowledgement.test.mjs",
+    "plugins/qq-connect/test/audit-lifecycle.test.mjs",
+    "plugins/qq-connect/test/embedded-page.test.mjs",
+    "plugins/qq-connect/test/history-refresh-r2.test.mjs",
+    "plugins/qq-connect/test/memory-recovery.test.mjs",
+    "plugins/qq-connect/test/menu-layout-r11.test.mjs",
+    "plugins/qq-connect/test/names-startup.test.mjs",
+    "plugins/qq-connect/test/page-202.test.mjs",
+    "plugins/qq-connect/test/portrait-r11.test.mjs",
+    "plugins/qq-connect/test/reconnect.test.mjs",
+    "plugins/qq-connect/test/reply-style-page.test.mjs",
+    "plugins/qq-connect/test/reply-style.test.mjs",
+    "plugins/qq-connect/test/review-account-refresh.test.mjs",
+    "plugins/qq-connect/test/review-startup-race.test.mjs",
+    "plugins/qq-connect/test/service.test.mjs",
+    "plugins/qq-connect/test/settings-rollback.test.mjs",
+    "test/account-services.test.mjs",
+    "test/audit-boundaries.test.mjs",
+    "test/evidence-integrity.test.mjs",
+    "test/native-contract.test.mjs",
+    "test/no-account-reads.test.mjs",
+    "test/onebot-wire.test.mjs",
+    "test/release-200-store-roundtrip.test.mjs",
+    "test/review-native-lifecycle.test.mjs",
+    "test/review-platform-receipts.test.mjs",
+    "test/review-store-boundaries.test.mjs",
+    "test/runtime-owner.test.mjs",
+    "test/store.test.mjs"
+  ],
+  "transforms": [
+    {
+      "path": "test/no-account-reads.test.mjs",
+      "reason": "Retain selected-plugin no-account authorization and shared account-store tests verbatim; exclude sibling service case/import.",
+      "originalSha256": "84833d06080d48ad44c543de144212f92740912f9b604dc154d0a16fc62902a5"
+    },
+    {
+      "path": "test/review-platform-receipts.test.mjs",
+      "reason": "Retain selected-plugin platform/experience receipt assertions verbatim; exclude sibling service case/import.",
+      "originalSha256": "29a06c006649fa9aab8bec86200aa535028909218c50afaa89ca09d7ec268098"
+    },
+    {
+      "path": "plugins/qq-connect/test/menu-layout-r11.test.mjs",
+      "reason": "Retain the real page disconnect/cancel test; exclude only browser geometry capture using private host React/CSS and external capture harness.",
+      "originalSha256": "77816b9672707d0994b5daa3a6c45b60a6e9e2131ac60936aa0ec2fe3f700d4b"
+    }
+  ],
+  "excluded": [
+    {
+      "path": "plugins/qq-connect/test/menu-layout-r11.test.mjs#browser-geometry",
+      "classification": "private-host-browser-integration",
+      "reason": "Only the optional browser geometry case needs private host React/CSS and an external browser capture driver; the disconnect/cancel page case is retained."
+    },
+    {
+      "path": "plugins/bilibili-companion/**",
+      "classification": "sibling-plugin",
+      "reason": "Independent repository exports only its selected plugin. The sibling source/tests are published separately."
+    },
+    {
+      "path": "test/no-account-reads.test.mjs#sibling-service",
+      "classification": "sibling-plugin-case",
+      "reason": "Selected service and shared authorization assertions are retained by explicit source projection."
+    },
+    {
+      "path": "test/review-platform-receipts.test.mjs#sibling-service",
+      "classification": "sibling-plugin-case",
+      "reason": "Selected platform receipt assertions are retained by explicit source projection."
+    }
+  ],
+  "optionalEvidence": [],
+  "notAcceptedByTheseTests": [
+    "real platform login or account behavior",
+    "paid/real model semantics",
+    "real Bilibili comment publication",
+    "real QQ inbound-to-model-to-outbound roundtrip",
+    "host visual/multiscreen behavior",
+    "owner Work execution"
+  ]
+}

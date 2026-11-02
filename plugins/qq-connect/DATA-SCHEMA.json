@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "minimumWriter": "0.1.0-dev.2",
+  "pluginId": "@ai-buddy/qq-connect",
+  "storage": "private SQLite; WAL; transaction locking",
+  "tables": {
+    "a_plugin_meta": "schema and minimum-writer binding; foreign database rejected before write",
+    "a_plugin_kv": "settings, selected operator/life/operation/generation, connection epoch",
+    "qq_messages": "persistent unique account+conversation+platform-message identity; actual role/life/epoch and normalized message",
+    "qq_outbox": "durable pending/sending/sent/failed/unknown/cancelled sends; original role retained; text_value is actual QQ payload, display_text_value is APP natural text with sources folded",
+    "qq_introductions": "per-account/conversation/operator-generation introduction receipt",
+    "qq_work_commands": "task+plan-version approval/cancel idempotency and original incoming command evidence; only unavailable or proven pre-dispatch not-submitted can be reclaimed by a new verified owner command; pending/submitted/unknown never replay",
+    "qq_proactive_offers": "persistent core-approved offer delivery identity; pending after crash becomes unknown, no blind resend",
+    "qq_sources": "complete structured model sources keyed by message and providerRequestId; account/conversation/role/life attribution, original received body unchanged"
+  },
+  "restart": {
+    "replayInboundMessages": false,
+    "sendingToUnknown": true,
+    "pendingUnsentToCancelled": true,
+    "pendingWorkToUnknown": true,
+    "automaticUnknownSendRetry": false,
+    "connectionRequiresExplicitStart": true,
+    "successfulSendMemoryRecovery": "Host transport-v1.sqlite atomically stores sends.completed and qq_memory_intents. One memory-only worker restores original trusted context, preserves original time/ref, retries at 10/60/300 seconds then needs review. Plugin outbox alone is never proof; manual memory.retry uses existing account-scoped connections.request."
+  },
+  "additiveMigration": "CREATE TABLE IF NOT EXISTS qq_sources and add nullable qq_outbox.display_text_value only when PRAGMA table_info proves absent; rerunnable, no history rewrite or invented source/read state",
+  "removal": {"retainPluginHistory": true, "retainCoreExperiences": true, "deleteAccountAuthorizationCancelsNewAccess": true},
+  "rollback": "Stop plugin, back up private SQLite together with WAL using SQLite backup, preserve core experience and work records, verify minimumWriter before opening an older binary. Never undo real QQ sends or shared wallet by restoring plugin data."
+}
