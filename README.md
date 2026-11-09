@@ -11,7 +11,7 @@
 
 [AI 酱本体](https://github.com/lXiaoSel1/AI-Buddy) · [B站陪伴](https://github.com/lXiaoSel1/AI-Buddy-Bilibili) · **QQ连接**（本仓库） · [一起玩牌](https://github.com/lXiaoSel1/AI-Buddy-Card-Games)
 
-**当前版本：2.0.6** · 需要 [AI 酱](https://github.com/lXiaoSel1/AI-Buddy) 2.0.2 或更新版本。这是 AI 酱的官方插件，在 AI 酱的 **扩展中心** 里安装，不用单独下载。
+**当前版本：2.0.8** · 需要 [AI 酱](https://github.com/lXiaoSel1/AI-Buddy) 2.0.2 或更新版本。这是 AI 酱的官方插件，在 AI 酱的 **扩展中心** 里安装，不用单独下载。
 
 选一位 AI 酱里的角色接管你的 QQ，让她用自己的口吻回复你允许的好友和群。群里默认只在被 @ 或被引用回复时才说话。每条回复是否发出、是否已经记进她的记忆，都在 AI 酱里看得到。不需要打开终端，也不用填端口或 Token。
 
@@ -104,7 +104,7 @@
 
 ## 技术说明
 
-插件包名 `@ai-buddy/qq-connect`，版本 2.0.6，需要 AI Buddy >= 2.0.2。这一版把已经验收的 2.0.5 功能代码整理成独立的源码仓库，桥接、协议、权限和数据格式不变；数据 schema 为 1，minimumWriter 为 `0.1.0-dev.2`，旧版本不能写入新数据，恢复数据库也不会撤回已经发出的消息。连接组件 NapCat 只在你点「扫码连接」时由 AI 酱从官方上游准备固定版本，本仓库不镜像、修改或捆绑 NapCat 或 QQ 客户端；已有手动 OneBot 配置的，可以在 **扩展中心 → 账号连接** 的「高级连接」里使用。默认值见 [`DEFAULTS.json`](plugins/qq-connect/DEFAULTS.json)，更新记录见 [CHANGELOG.md](CHANGELOG.md)。
+插件包名 `@ai-buddy/qq-connect`，版本 2.0.8，需要 AI Buddy >= 2.0.2。这一版沿用本机 2.0.7 的已验收功能，桥接、协议、权限和数据格式不变；数据 schema 为 1，minimumWriter 为 `0.1.0-dev.2`，旧版本不能写入新数据，恢复数据库也不会撤回已经发出的消息。连接组件 NapCat 只在你点「扫码连接」时由 AI 酱从官方上游准备固定版本，本仓库不镜像、修改或捆绑 NapCat 或 QQ 客户端；已有手动 OneBot 配置的，可以在 **扩展中心 → 账号连接** 的「高级连接」里使用。默认值见 [`DEFAULTS.json`](plugins/qq-connect/DEFAULTS.json)，更新记录见 [CHANGELOG.md](CHANGELOG.md)。
 
 开发需要固定的 Node 24.21.0、npm 11.19.0 和 esbuild 0.28.2，在新的 checkout 里运行：
 
@@ -132,7 +132,7 @@ NapCat 是第三方项目，适用它自己的许可，由 AI 酱在连接时从
 
 [AI Buddy app](https://github.com/lXiaoSel1/AI-Buddy) · [Bilibili Companion](https://github.com/lXiaoSel1/AI-Buddy-Bilibili) · **QQ Connect** (this repository) · [Card Games](https://github.com/lXiaoSel1/AI-Buddy-Card-Games)
 
-**Version 2.0.6** · requires [AI Buddy](https://github.com/lXiaoSel1/AI-Buddy) 2.0.2 or later. It is an official AI Buddy plugin, installed from AI Buddy's **Extensions** center; there is nothing to download separately.
+**Version 2.0.8** · requires [AI Buddy](https://github.com/lXiaoSel1/AI-Buddy) 2.0.2 or later. It is an official AI Buddy plugin, installed from AI Buddy's **Extensions** center; there is nothing to download separately.
 
 Choose a character from AI Buddy to take over your QQ account and answer, in her own voice, the friends and groups you allow. In groups she speaks only when @-mentioned or replied to, by default. AI Buddy shows whether each reply was sent and whether it has been saved to her memory. No terminal, ports or tokens are needed. The pictures above show the Chinese interface with demo data.
 
@@ -181,8 +181,16 @@ AI Buddy creates no account for you and ships none. Login state, cookies and tok
 
 ### Technical notes
 
-Package `@ai-buddy/qq-connect` 2.0.6, requires AI Buddy >= 2.0.2. This release turns the accepted 2.0.5 functionality into an independent source repository with the same bridge, protocol, permissions and data format; schema 1, minimumWriter `0.1.0-dev.2`. NapCat is prepared by AI Buddy from its official upstream, pinned, only when you click Connect; this repository does not mirror, modify or bundle NapCat or the QQ client. An existing manual OneBot setup can be used under the advanced connection in **Extensions → Accounts**. Development uses Node 24.21.0, npm 11.19.0 and esbuild 0.28.2: `npm ci`, `npm test`, `npm run build`, `npm run verify:artifacts`, `npm run repro`. See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) and [docs/VALIDATION.md](docs/VALIDATION.md).
+Package `@ai-buddy/qq-connect` 2.0.8, requires AI Buddy >= 2.0.2. This release publishes the accepted local 2.0.7 behavior with the same bridge, protocol, permissions and data format; schema 1, minimumWriter `0.1.0-dev.2`. NapCat is prepared by AI Buddy from its official upstream, pinned, only when you click Connect; this repository does not mirror, modify or bundle NapCat or the QQ client. An existing manual OneBot setup can be used under the advanced connection in **Extensions → Accounts**. Development uses Node 24.21.0, npm 11.19.0 and esbuild 0.28.2: `npm ci`, `npm test`, `npm run build`, `npm run verify:artifacts`, `npm run repro`. See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) and [docs/VALIDATION.md](docs/VALIDATION.md).
 
 ### License and third parties
 
 Source-available under the Apache License 2.0 with the Commons Clause ([LICENSE.md](LICENSE.md)): free to use, modify and share, but not to sell without written permission from lXiaoSel1. Under the OSI definition this is source-available, not open source. NapCat is a third-party project under its own license, prepared by AI Buddy at connection time and not distributed with this plugin; see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). The README screenshots come from an independent demo profile: the QQ account, contacts, groups and chats are demo data (the numbers are examples), and no real account or model was used. The connection window was captured offline in an isolated environment and only its step header is shown, with no QR code. This plugin is not affiliated with Tencent QQ.
+
+## 2.0.8
+
+沿用已验收的本机 2.0.7，公开设置撤销与异步回复竞态修复。旧记录、发送回执、授权边界、权限、合同与数据格式保持原值。本轮仅使用新版本及正式下载身份，不增加业务行为。
+
+Publishes the accepted local 2.0.7 settings-revocation and asynchronous-reply race fix. Existing records, delivery receipts, authorization boundaries, capabilities, contract and schema are preserved. This preparation changes only release identifiers and documentation.
+
+[2.0.8 发行说明 / Release notes](RELEASE-NOTES-2.0.8.md)

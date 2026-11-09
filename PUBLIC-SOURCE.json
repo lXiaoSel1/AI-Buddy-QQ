@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "kind": "deterministic-public-source-export",
   "plugin": "qq-connect",
-  "version": "2.0.6",
-  "inventoryHash": "d91333614e898be1f74594148d22f7f335508923b46884e0e0cb3748ef412ab8",
+  "version": "2.0.8",
+  "inventoryHash": "8db020a166e23a9247318b1388a14d921506dc7fa0bbd10ccf9f81fb54e2e655",
   "files": [
     {
       "path": ".gitattributes",
@@ -22,43 +22,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "bytes": 4731,
-      "sha256": "6718f065af8b1e649fb5843a6dbe8239de2b658a3d9da63f60ddcea5b584513d"
-    },
-    {
-      "path": "LICENSE.md",
-      "bytes": 13912,
-      "sha256": "e6678c4b6c1d0aacc5f99e6c1feac9d2a8ed348f45c82183fc5a6bf1b2482005"
-    },
-    {
-      "path": "PUBLIC-REPOSITORY.json",
-      "bytes": 300,
-      "sha256": "d0dc0a1b712f5175094287c115d80f3003eb82dfc10512ea46792de2040d81e6"
-    },
-    {
-      "path": "README.md",
-      "bytes": 6702,
-      "sha256": "92c9e848d10cf806e35abd2bffc22d5a9b969ae9f2e0c2f50431ed12e9be5f55"
-    },
-    {
-      "path": "TEST-SCOPE.json",
-      "bytes": 3880,
-      "sha256": "6d25e0ead2a2ca5599feb8eeb4206684a695de34eec5494670f0e2398d79e366"
-    },
-    {
-      "path": "THIRD-PARTY-NOTICES.md",
-      "bytes": 1897,
-      "sha256": "3adf5853f3841175b917541c3e0fad00e007cc4b76eff7581dbd79ce44909ed3"
-    },
-    {
-      "path": "THIRD_PARTY_NOTICES.md",
-      "bytes": 1596,
-      "sha256": "b861022a8abd5e3b0f6f2c19cd3064865f29f19832d48970683af43736835f28"
-    },
-    {
-      "path": "contracts/README.md",
-      "bytes": 681,
-      "sha256": "c0fc139e9b901d376f7f4cacf7b6c323a0e13e99f595aa2005d1cad7304cd418"
+      "bytes": 5276,
+      "sha256": "2c297a575afbe41b863dee436cc6d2146da772f5436c9936a927198cbae210e9"
     },
     {
       "path": "contracts/proposal.json",
@@ -66,14 +31,64 @@
       "sha256": "f8c4b4572d1cba8e91b1a43b8cd6a0aba40df12136715e27254e513816f6743d"
     },
     {
+      "path": "contracts/README.md",
+      "bytes": 681,
+      "sha256": "c0fc139e9b901d376f7f4cacf7b6c323a0e13e99f595aa2005d1cad7304cd418"
+    },
+    {
       "path": "docs/DEVELOPMENT.md",
       "bytes": 2876,
       "sha256": "529c066ff65f89a1b23267dd7f7942b45bacc6ac596d4f1f35d6f7a9ab74e627"
     },
     {
+      "path": "docs/images/qq-account-status.webp",
+      "bytes": 47886,
+      "sha256": "4910db0e9d61c40a1e28c7894a5d95dad1f735eaf8da55cfc829cfc37a1003a3"
+    },
+    {
+      "path": "docs/images/qq-hero-chats.webp",
+      "bytes": 54608,
+      "sha256": "0fb66f307270f689a4a923dcdf44a1d4c68092ca1e00d7c568a1cc94dce2ea0f"
+    },
+    {
+      "path": "docs/images/qq-reply-style.webp",
+      "bytes": 55854,
+      "sha256": "a5221d292f315d6107f27e39e2c69d7593d5ab925209f7cc26c7a015824b1c1d"
+    },
+    {
+      "path": "docs/images/qq-step-1-extension-center.webp",
+      "bytes": 45854,
+      "sha256": "487a5f543ab21daf7f2f54aecf27856674ccb21317bf875e5f5b5ac93554a665"
+    },
+    {
+      "path": "docs/images/qq-step-2-connect-qq.webp",
+      "bytes": 36450,
+      "sha256": "abe976399f34c0da92f25c13e1f6e4ed64ea8311bbb0e295afdce60a5240c3da"
+    },
+    {
+      "path": "docs/images/qq-step-3-qr-steps.webp",
+      "bytes": 5358,
+      "sha256": "f1f2a76de3f449dabff79840d027c362e27754449b61a2dd55d864cb2f87135e"
+    },
+    {
+      "path": "docs/images/qq-step-4-choose-character.webp",
+      "bytes": 48668,
+      "sha256": "118ff653ab25de7ee5ecb40d4824887bc6130ea02c34445f62c77062f39ea3a2"
+    },
+    {
+      "path": "docs/images/qq-step-5-allow-list.webp",
+      "bytes": 61030,
+      "sha256": "a36b30b9c37fc5e5945fa8e1d6b9e2957e99838730c56b0f6bc88255f505813a"
+    },
+    {
       "path": "docs/VALIDATION.md",
       "bytes": 1574,
       "sha256": "2e0212e86f64d9847cb0fbfb4a90d5c5dde3681f2f1cf72586ddca0199cab5f1"
+    },
+    {
+      "path": "LICENSE.md",
+      "bytes": 13912,
+      "sha256": "e6678c4b6c1d0aacc5f99e6c1feac9d2a8ed348f45c82183fc5a6bf1b2482005"
     },
     {
       "path": "licenses/upstream/LICENSE.md",
@@ -83,17 +98,22 @@
     {
       "path": "package-lock.json",
       "bytes": 15080,
-      "sha256": "390ea0c449052c0e4303f44a6c840a752d81ad5992d4a5ed1ce50b0326803518"
+      "sha256": "0afea52a8d671bde7d1fa53c7f6f748efc469b33373353a4ceb4a733fdb6d796"
     },
     {
       "path": "package.json",
       "bytes": 483,
-      "sha256": "51cece3df13299104179b6de53e7ee9e32e65633c1566eb2402006027bf905b1"
+      "sha256": "1aeb7221fbf1f3b52728bb7287608b714af2bc294aa2a59495147b44cb97e650"
     },
     {
       "path": "plugins/qq-connect/CHANGELOG.md",
-      "bytes": 4731,
-      "sha256": "6718f065af8b1e649fb5843a6dbe8239de2b658a3d9da63f60ddcea5b584513d"
+      "bytes": 5276,
+      "sha256": "2c297a575afbe41b863dee436cc6d2146da772f5436c9936a927198cbae210e9"
+    },
+    {
+      "path": "plugins/qq-connect/cordis.patch.yml",
+      "bytes": 75,
+      "sha256": "071f89fa36ab0786f973ced2ca64182b3527bf2969125b6a31d593e3a5654c28"
     },
     {
       "path": "plugins/qq-connect/DATA-SCHEMA.json",
@@ -111,29 +131,19 @@
       "sha256": "e6678c4b6c1d0aacc5f99e6c1feac9d2a8ed348f45c82183fc5a6bf1b2482005"
     },
     {
+      "path": "plugins/qq-connect/package.json",
+      "bytes": 1940,
+      "sha256": "e75c42c6ae8cadf58742b87386876a81d606cd1b1a2ffcd53a02241f8658a535"
+    },
+    {
       "path": "plugins/qq-connect/README.md",
-      "bytes": 6702,
-      "sha256": "92c9e848d10cf806e35abd2bffc22d5a9b969ae9f2e0c2f50431ed12e9be5f55"
+      "bytes": 7214,
+      "sha256": "f9ec5ed72ba9bf33c383d2d606d007af7780c4c863f2336d66d0a1b567ff2727"
     },
     {
       "path": "plugins/qq-connect/SETTINGS.schema.json",
       "bytes": 2036,
       "sha256": "79429ed6053b4fdf9f23aedf387edeeeae937d65f7e3005dc41adf2f761c5b85"
-    },
-    {
-      "path": "plugins/qq-connect/THIRD-PARTY-NOTICES.md",
-      "bytes": 1897,
-      "sha256": "3adf5853f3841175b917541c3e0fad00e007cc4b76eff7581dbd79ce44909ed3"
-    },
-    {
-      "path": "plugins/qq-connect/cordis.patch.yml",
-      "bytes": 75,
-      "sha256": "071f89fa36ab0786f973ced2ca64182b3527bf2969125b6a31d593e3a5654c28"
-    },
-    {
-      "path": "plugins/qq-connect/package.json",
-      "bytes": 1940,
-      "sha256": "6b221e56bad6951fa3561a4042e01b4a19ab09a024c75fc7d48526f450c94090"
     },
     {
       "path": "plugins/qq-connect/src/client/index.mjs",
@@ -157,8 +167,8 @@
     },
     {
       "path": "plugins/qq-connect/src/service.mjs",
-      "bytes": 58754,
-      "sha256": "eca8233de8ce9343401ea67194a4d4451970501e2aff669f8769c1265fdb078c"
+      "bytes": 58941,
+      "sha256": "0a5c9531363dd7b7b0a946def42c9480b80f991507b36cc51b3c1e51e64fb785"
     },
     {
       "path": "plugins/qq-connect/src/settings-store.mjs",
@@ -251,9 +261,34 @@
       "sha256": "fa1f2c323b31666fdc7198602261da102cab84eb4026dab57b7acde1e6d2d29c"
     },
     {
+      "path": "plugins/qq-connect/test/settings-revocation-race.test.mjs",
+      "bytes": 9421,
+      "sha256": "820b0f5d121691e903696ff2265de23037937620f8da6f775a450395f8110576"
+    },
+    {
       "path": "plugins/qq-connect/test/settings-rollback.test.mjs",
       "bytes": 5603,
       "sha256": "f9411917a26a8cc7c366f865a57fd03a0b954f7658af79aa0a7b92c2c7509ce5"
+    },
+    {
+      "path": "plugins/qq-connect/THIRD-PARTY-NOTICES.md",
+      "bytes": 1897,
+      "sha256": "3adf5853f3841175b917541c3e0fad00e007cc4b76eff7581dbd79ce44909ed3"
+    },
+    {
+      "path": "PUBLIC-REPOSITORY.json",
+      "bytes": 300,
+      "sha256": "0f4ca27de80cb1c43286ed4edc3bf2187d635096e67775d5a8e672b3278b50d6"
+    },
+    {
+      "path": "README.md",
+      "bytes": 21163,
+      "sha256": "5896207989b456303d331e0864e90bb20a2d3371bac4eb736c268f4044bb265d"
+    },
+    {
+      "path": "RELEASE-NOTES-2.0.8.md",
+      "bytes": 1005,
+      "sha256": "730d44487ae9476618ba9ef7e788d9d506c0a93cc48c4bd8e4546ed58c817d5e"
     },
     {
       "path": "scripts/build.mjs",
@@ -331,6 +366,11 @@
       "sha256": "cd6234158c072d193aebdf6bd5a0302a4966f6dffe8a5e24b418925c0606e427"
     },
     {
+      "path": "TEST-SCOPE.json",
+      "bytes": 3880,
+      "sha256": "6d25e0ead2a2ca5599feb8eeb4206684a695de34eec5494670f0e2398d79e366"
+    },
+    {
       "path": "test/account-services.test.mjs",
       "bytes": 2801,
       "sha256": "e0e4c88b0face95394b71cd2f55ad3ba95c7db15bae1d35340cbc4da38b2defc"
@@ -394,6 +434,16 @@
       "path": "test/store.test.mjs",
       "bytes": 3900,
       "sha256": "497ffae91958a62ab5045f2cc66f277252f9b6818b7441ddd71006265b895047"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 1596,
+      "sha256": "b861022a8abd5e3b0f6f2c19cd3064865f29f19832d48970683af43736835f28"
+    },
+    {
+      "path": "THIRD-PARTY-NOTICES.md",
+      "bytes": 1897,
+      "sha256": "3adf5853f3841175b917541c3e0fad00e007cc4b76eff7581dbd79ce44909ed3"
     }
   ],
   "origins": [

@@ -1,3 +1,8 @@
+## 2.0.8 — 2026-11-08
+
+- 沿用已验收的本机 2.0.7，公开设置撤销与异步回复竞态修复。旧记录、发送回执、授权边界、权限、合同与数据格式保持原值。本轮仅使用新版本及正式下载身份，不增加业务行为。
+- Publishes the accepted local 2.0.7 settings-revocation and asynchronous-reply race fix. Existing records, delivery receipts, authorization boundaries, capabilities, contract and schema are preserved. This preparation changes only release identifiers and documentation.
+
 ## 2.0.6 — 2026-11-01
 
 - Publish an independent, self-contained source repository and fixed development toolchain; update installation, permission, retention and verification boundaries.

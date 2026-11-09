@@ -5,7 +5,7 @@ import {assert, fail} from '../../../shared/errors.mjs';
 import {QQ_DEFAULTS, normalizeSettings, SETTINGS_SCHEMA} from './settings.mjs';
 import {normalizeOneBotEvent, parseWorkCommand, platformMessageId} from './normalizer.mjs';
 import {HostOneBotTransport, assertBackendCapabilities} from './onebot.mjs';
-const VERSION = '2.0.6';
+const VERSION = '2.0.7';
 
 export const PLUGIN_ID = '@ai-buddy/qq-connect';
 const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -99,7 +99,6 @@ export function createQqService({databasePath, host, transport = null, now = Dat
     const context = await host.invoke('social.context.read', {purpose: 'manage-plugin', pluginId: PLUGIN_ID, principal});
     assert(context?.contextToken && context.permissions?.includes('plugin.manage'), 'PLUGIN_MANAGE_DENIED', '需要宿主验证的插件管理权限');
     if (settings.accountId&&!allowAccountChange) assert(context.accountId === settings.accountId, 'QQ_MANAGEMENT_ACCOUNT_MISMATCH', '管理主体与账号不匹配');
-    nameOperator(context);
     return context;
   }
   // Older bindings stored the character id as the name; every host context read corrects it from the character list.
@@ -417,7 +416,9 @@ export function createQqService({databasePath, host, transport = null, now = Dat
     const arrivalControl=controlGeneration,arrivalStartup=action==='startup.update'?++startupIssued:0;
     const context = await management(principal,{allowAccountChange:['status','choices.get','settings.update','setup.finish'].includes(action)});
     assert(!closed,'QQ_CLOSED','插件已退出');
-    if(['setup.finish','operator.select','connect','startup.update'].includes(action))assert(arrivalControl===controlGeneration,'QQ_CONNECTION_REVOKED','连接设置期间的操作已撤销');
+    // A delayed management response cannot refresh stored metadata or commit an older settings snapshot.
+    if(['settings.update','setup.finish','operator.select','connect','startup.update'].includes(action))assert(arrivalControl===controlGeneration,'QQ_CONNECTION_REVOKED','连接设置期间的操作已撤销');
+    if(action!=='settings.update')nameOperator(context);
     switch (action) {
       case 'status': return {...status(),startup:structuredClone(startup)};
       case 'choices.get': return choicesOf(context);
@@ -427,6 +428,7 @@ export function createQqService({databasePath, host, transport = null, now = Dat
         const changedConnection=next.accountId!==settings.accountId||next.connectionRef!==settings.connectionRef;
         if(changedConnection)assert(next.accountId===context.accountId&&(!Array.isArray(context.managedConnections)||context.managedConnections.some(row=>row.platform==='qq'&&row.ref===next.connectionRef&&row.accountId===next.accountId)),'QQ_CONNECTION_ACCOUNT_MISMATCH','请选择当前已登录的账号连接');
         assert(!connected || (next.accountId === settings.accountId && next.connectionRef === settings.connectionRef), 'QQ_DISCONNECT_BEFORE_ACCOUNT_CHANGE', '更换账号前请断开连接');
+        nameOperator(context);
         const control=beginControl();
         if (!next.enabled && connected) await stopConnection({invalidate:false});
         checkControl(control);

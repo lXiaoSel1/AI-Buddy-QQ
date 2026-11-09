@@ -1,8 +1,8 @@
 # AI Buddy QQ / QQ连接
 
-`@ai-buddy/qq-connect` **2.0.6** · AI Buddy **>= 2.0.2** · source-available: Apache 2.0 + Commons Clause.
+`@ai-buddy/qq-connect` **2.0.8** · AI Buddy **>= 2.0.2** · source-available: Apache 2.0 + Commons Clause.
 
-让指定角色通过宿主受管理连接回应你允许的 QQ 会话，保留角色口吻、独立回复风格与实际发送回执。此补丁把已接受的 2.0.5 功能代码整理为独立源码与发布仓库；桥接、协议 hash、权限与数据格式不变。
+让指定角色通过宿主受管理连接回应你允许的 QQ 会话，保留角色口吻、独立回复风格与实际发送回执。此版本沿用本机 2.0.7 的已验收功能；桥接、协议 hash、权限与数据格式不变。
 
 ## 安装、连接与授权
 
@@ -33,10 +33,16 @@ Work 插件不在本轮公开安装集合中。未装、停用或不具工作权
 
 ## English
 
-AI Buddy QQ 2.0.6 connects an explicitly selected character to allowlisted QQ conversations through the host. It requires AI Buddy >= 2.0.2. AI Buddy creates no extra service account or platform signup. Only explicit Connect prepares the pinned, unmodified official NapCat component and starts the user's scan-login flow; this repository does not mirror or bundle it. Installation, updates and scanning alone grant no chat, model or owner-work permission. The plugin starts disabled and contains no credentials or QQ runtime.
+AI Buddy QQ 2.0.8 connects an explicitly selected character to allowlisted QQ conversations through the host. It requires AI Buddy >= 2.0.2. AI Buddy creates no extra service account or platform signup. Only explicit Connect prepares the pinned, unmodified official NapCat component and starts the user's scan-login flow; this repository does not mirror or bundle it. Installation, updates and scanning alone grant no chat, model or owner-work permission. The plugin starts disabled and contains no credentials or QQ runtime.
 
 Conversation reply style overrides the QQ default, which otherwise inherits the general style. Verified sender, mention and reply context preserves identity. Media interpretation depends on actual backend/model capabilities and metadata; unsupported audio or visual content is not presented as understood. New connection epochs consume only new events, not platform history. Durable deduplication and send receipts distinguish actual delivery, unknown sends, read status and memory completion. Memory-only recovery never resends a completed/unknown message.
 
-Owner work needs separately verified owner scope and a compatible installed Work plugin; Work is excluded from this public installation set and its absence does not block ordinary QQ chat. Group roles, quoted content and model output cannot authorize work. Uninstall retains history by default. The accepted integration baseline had core 2825 pass / 4 skip, social 476 pass / 4 skip, real Electron synthetic-scene checks and both plugins loaded after a formal install. It did not accept a real QQ inbound -> model -> outbound roundtrip. This patch keeps the 2.0.5 functional baseline.
+Owner work needs separately verified owner scope and a compatible installed Work plugin; Work is excluded from this public installation set and its absence does not block ordinary QQ chat. Group roles, quoted content and model output cannot authorize work. Uninstall retains history by default. The accepted integration baseline had core 2825 pass / 4 skip, social 476 pass / 4 skip, real Electron synthetic-scene checks and both plugins loaded after a formal install. It did not accept a real QQ inbound -> model -> outbound roundtrip. This release keeps the accepted local 2.0.7 functional baseline.
 
 Source is available under Apache 2.0 **with Commons Clause**, subject to unchanged `LICENSE.md`. Existing third-party notices and host artwork/reference-rights qualifications remain; this repository does not claim all such rights are cleared. [Host](https://github.com/lXiaoSel1/AI-Buddy) · [Extension directory](https://github.com/lXiaoSel1/AI-Buddy-Extensions) · [Plugin source and releases](https://github.com/lXiaoSel1/AI-Buddy-QQ).
+
+## 2.0.8
+
+沿用已验收的本机 2.0.7，公开设置撤销与异步回复竞态修复。旧记录、发送回执、授权边界、权限、合同与数据格式保持原值。本轮仅使用新版本及正式下载身份，不增加业务行为。
+
+Publishes the accepted local 2.0.7 settings-revocation and asynchronous-reply race fix. Existing records, delivery receipts, authorization boundaries, capabilities, contract and schema are preserved. This preparation changes only release identifiers and documentation.
