@@ -1,6 +1,6 @@
 {
   "name": "@ai-buddy/qq-connect",
-  "version": "2.0.9",
+  "version": "2.0.10",
   "description": "AI Buddy QQ connection — scoped conversations, reply styles and durable receipts",
   "type": "module",
   "main": "lib/index.js",

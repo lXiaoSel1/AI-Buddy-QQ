@@ -1,11 +1,12 @@
 import {readStoredQqSettings,writeStoredQqSettings} from './settings-store.mjs';
+import manifest from '../package.json' with {type:'json'};
 import {createHash} from 'node:crypto';
 import {openStore} from '../../../shared/store.mjs';
 import {assert, fail} from '../../../shared/errors.mjs';
 import {QQ_DEFAULTS, normalizeSettings, SETTINGS_SCHEMA} from './settings.mjs';
 import {normalizeOneBotEvent, parseWorkCommand, platformMessageId} from './normalizer.mjs';
 import {HostOneBotTransport, assertBackendCapabilities} from './onebot.mjs';
-const VERSION = '2.0.7';
+const VERSION = manifest.version;
 
 export const PLUGIN_ID = '@ai-buddy/qq-connect';
 const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -66,14 +67,18 @@ export function createQqService({databasePath, host, transport = null, now = Dat
   db.prepare("UPDATE qq_work_commands SET status='unknown',error_code='QQ_RESTART_NO_APPROVAL_REPLAY' WHERE status='pending'").run();
   db.prepare("UPDATE qq_proactive_offers SET status='unknown',error_code='QQ_RESTART_OFFER_RECONCILIATION_REQUIRED' WHERE status='pending'").run();
   let settings = readStoredQqSettings(store), operator = store.get('operator', null);
-  let startup=store.get('qr-startup-v1',{autoResume:false}),restoreAttempted=false;
+  let startup=store.get('qr-startup-v1',{autoResume:false}),restoreSuppressed=false;
   let checkedAt = null, binding = null, connected = false, closed = false, epoch = store.get('epoch', 0), epochSeconds = Math.ceil(now() / 1000), connectionGeneration = 0, policyGeneration = 0;
   let adapter = transport ?? new HostOneBotTransport(host), connecting = null, connectionAttempt = 0;
   const active = new Set(), pending = new Set(), controls = new Set();
   let controlGeneration=0,controlAbort=null,startupGeneration=0,startupIssued=0,startupAccepted=0,startupAbort=null,closingTransport=null,closePromise=null;
-  let inboundQueue = Promise.resolve();
+  const conversationQueues=new Map(),receiveWaiters=[];let receiving=0;
+  let reconnect={phase:'idle',attempt:0,nextAt:null,error:null};
+  const restoreAllowed=()=>!restoreSuppressed&&startup.autoResume===true&&settings.enabled&&startup.accountId===settings.accountId&&startup.connectionRef===settings.connectionRef&&operator&&['characterId','lifeId','operationId'].every(key=>startup[key]===operator[key]);
+  const resetReconnect=()=>{reconnect={phase:'idle',attempt:0,nextAt:null,error:null};};
+  function disconnected(code){connected=false;connectionGeneration++;cancelActive();reconnect=restoreAllowed()?{phase:'waiting',attempt:0,nextAt:now()+1000,error:code??'QQ_SOCKET_CLOSED'}:{phase:'disconnected',attempt:0,nextAt:null,error:code??'QQ_SOCKET_CLOSED'};}
 
-  function status() { return {pluginId: PLUGIN_ID, schemaVersion: 1, version: VERSION, enabled: settings.enabled, connected, operator: operator ? {...operator} : null, epoch, settings: structuredClone(settings), capabilities: binding?.capabilities ?? [], transportError: adapter.lastError ?? null, checkedAt: Math.max(checkedAt ?? 0, adapter.lastCheckedAt ?? 0) || null, historyRetained: true, offlineReplay: false}; }
+  function status() { return {pluginId: PLUGIN_ID, schemaVersion: 1, version: VERSION, enabled: settings.enabled, connected, operator: operator ? {...operator} : null, epoch, settings: structuredClone(settings), capabilities: binding?.capabilities ?? [], transportError: adapter.lastError ?? reconnect.error ?? null, reconnect:{...reconnect}, checkedAt: Math.max(checkedAt ?? 0, adapter.lastCheckedAt ?? 0) || null, historyRetained: true, offlineReplay: false}; }
   function invalidateStartup(){startupGeneration++;startupAbort?.abort();startupAbort=null;}
   function invalidateControl(){controlGeneration++;controlAbort?.abort();controlAbort=null;invalidateStartup();}
   function beginStartup(){invalidateStartup();const controller=new AbortController();startupAbort=controller;return {generation:startupGeneration,controlGeneration,controller};}
@@ -92,7 +97,7 @@ export function createQqService({databasePath, host, transport = null, now = Dat
     binding = assertBackendCapabilities(nextBinding); epoch++; store.set('epoch', epoch);
     // OneBot timestamps have second precision. Conservatively skip the partial
     // connecting second so queued offline events cannot slip through that gap.
-    epochSeconds = Math.ceil(now() / 1000); checkedAt = now(); connectionGeneration++; cancelActive(); connected = true;
+    epochSeconds = Number.isSafeInteger(nextBinding.epochSeconds)?nextBinding.epochSeconds:Math.ceil(now() / 1000); checkedAt = now(); connectionGeneration++; cancelActive(); connected = true;
   }
   async function management(principal,{allowAccountChange=false}={}) {
     assert(!closed, 'QQ_CLOSED', '插件已退出');
@@ -108,7 +113,7 @@ export function createQqService({databasePath, host, transport = null, now = Dat
     if (name !== (operator.displayName ?? null)) {operator.displayName = name;store.set('operator', operator);}
   }
   async function stopConnection({invalidate=true}={}) {
-    if(invalidate)invalidateControl();
+    if(invalidate){invalidateControl();restoreSuppressed=true;resetReconnect();}
     connected = false; connectionAttempt++; connectionGeneration++; cancelActive();
     const attempt=connectionAttempt;
     db.prepare("UPDATE qq_outbox SET status='cancelled',error_code='QQ_ACTIVITY_REVOKED' WHERE status='pending'").run();
@@ -134,11 +139,11 @@ export function createQqService({databasePath, host, transport = null, now = Dat
       }
       await closeTransport();
       assert(stillAllowed(), 'QQ_CONNECTION_REVOKED', '连接启动期间的授权已撤销');
-      const result = await adapter.start({connectionRef: settings.connectionRef, accountId: settings.accountId, onEpoch: value => {if (closed || !settings.enabled || attempt !== connectionAttempt || settings.accountId !== accountAtStart || !established && !stillAllowed()) return;epochCalled = true;startEpoch(value);}, onEvent: raw => receive(raw), onDisconnect: () => {connected = false;connectionGeneration++;cancelActive();}});
+      const result = await adapter.start({connectionRef: settings.connectionRef, accountId: settings.accountId, recipientPolicy:()=>({contacts:[...settings.contacts],groups:settings.groups.map(row=>row.id)}), onEpoch: value => {if (closed || !settings.enabled || attempt !== connectionAttempt || settings.accountId !== accountAtStart || !established && !stillAllowed()) return;epochCalled = true;startEpoch(value);}, onEvent: raw => receive(raw), onDisconnect: code => {if(attempt===connectionAttempt&&!closed)disconnected(code);}});
       assert(stillAllowed(), 'QQ_CONNECTION_REVOKED', '连接启动期间的授权已撤销');
       assertBackendCapabilities(result);
       assert(result.accountId === settings.accountId, 'QQ_CONNECTION_ACCOUNT_MISMATCH', '后端账号不匹配');
-      if (!epochCalled) startEpoch(result); established = true; connected = true; return status();
+      if (!epochCalled) startEpoch(result); established = true; connected = true;resetReconnect(); return status();
     } catch (error) { if(attempt===connectionAttempt){await closeTransport().catch(() => {});if(attempt===connectionAttempt){connected = false; binding = null;}}throw error; }
   }
   async function connect(managementContext) {
@@ -254,7 +259,7 @@ export function createQqService({databasePath, host, transport = null, now = Dat
     if (arrival.epoch !== epoch || arrival.operatorGeneration !== operator.generation || arrival.connectionGeneration !== connectionGeneration || arrival.policyGeneration !== policyGeneration) return {status: 'cancelled', reason: 'QQ_QUEUED_GENERATION_CHANGED'};
     let event;
     try {event = normalizeOneBotEvent(raw, binding, {epochSeconds, receivedAt: now()});}
-    catch (error) {return {status: 'ignored', reason: error.code};}
+    catch (error) {if(error.code==='QQ_CLOCK_SKEW')adapter.lastError='QQ_CLOCK_SKEW';return {status: 'ignored', reason: error.code};}
     const group = settings.groups.find(value => value.id === event.peerId);
     if (event.conversationType === 'private' ? !settings.contacts.includes(event.peerId) : !group) return {status: 'ignored', reason: 'QQ_NOT_ALLOWLISTED'};
     const messageKey = digest([event.accountId, event.conversationId, event.sourceMessageId]);
@@ -354,9 +359,11 @@ export function createQqService({databasePath, host, transport = null, now = Dat
     }
   }
   function receive(raw) {
+    assert(pending.size<1000,'QQ_EVENT_BACKPRESSURE','The bounded receive queue is full; the host must retain this event');
     const arrival = {epoch, operatorGeneration: operator?.generation, connectionGeneration, policyGeneration};
-    const task = inboundQueue.then(() => processIncoming(raw, arrival));
-    inboundQueue = task.catch(() => {}); pending.add(task); task.finally(() => pending.delete(task)).catch(() => {});
+    const key=raw?.message_type==='group'?'group:'+raw.group_id:'private:'+(raw?.user_id??raw?.sender?.user_id);
+    const task=(conversationQueues.get(key)??Promise.resolve()).catch(()=>{}).then(async()=>{if(receiving>=4)await new Promise(resolve=>receiveWaiters.push(resolve));else receiving++;try{return await processIncoming(raw,arrival);}finally{const next=receiveWaiters.shift();if(next)next();else receiving--;}});
+    conversationQueues.set(key,task);pending.add(task);task.finally(()=>{pending.delete(task);if(conversationQueues.get(key)===task)conversationQueues.delete(key);}).catch(()=>{});
     return task;
   }
   async function proactive(payload, context) {
@@ -409,8 +416,8 @@ export function createQqService({databasePath, host, transport = null, now = Dat
   }
   function deliverProactive(offerId) {
     const arrival = {operatorGeneration: operator?.generation, connectionGeneration, policyGeneration};
-    const task = inboundQueue.then(() => runProactive(offerId, arrival));
-    inboundQueue = task.catch(() => {});pending.add(task);task.finally(() => pending.delete(task)).catch(() => {});return task;
+    const task = Promise.allSettled([...pending]).then(() => runProactive(offerId, arrival));
+    pending.add(task);task.finally(() => pending.delete(task)).catch(() => {});return task;
   }
   async function dispatchInternal(action, payload = {}, principal) {
     const arrivalControl=controlGeneration,arrivalStartup=action==='startup.update'?++startupIssued:0;
@@ -426,14 +433,15 @@ export function createQqService({databasePath, host, transport = null, now = Dat
       case 'settings.update': {
         const next = normalizeSettings(payload.settings ?? payload, settings);
         const changedConnection=next.accountId!==settings.accountId||next.connectionRef!==settings.connectionRef;
+        const changedPolicy=['enabled','connectionRef','accountId','contacts','groups','proactiveContacts'].some(key=>JSON.stringify(next[key])!==JSON.stringify(settings[key]));
         if(changedConnection)assert(next.accountId===context.accountId&&(!Array.isArray(context.managedConnections)||context.managedConnections.some(row=>row.platform==='qq'&&row.ref===next.connectionRef&&row.accountId===next.accountId)),'QQ_CONNECTION_ACCOUNT_MISMATCH','请选择当前已登录的账号连接');
         assert(!connected || (next.accountId === settings.accountId && next.connectionRef === settings.connectionRef), 'QQ_DISCONNECT_BEFORE_ACCOUNT_CHANGE', '更换账号前请断开连接');
         nameOperator(context);
-        const control=beginControl();
+        const control=changedPolicy?beginControl():null;
         if (!next.enabled && connected) await stopConnection({invalidate:false});
-        checkControl(control);
+        if(control)checkControl(control);else assert(!closed,'QQ_CLOSED');
         const nextStartup=changedConnection?{autoResume:false}:startup;store.transaction(()=>{if(changedConnection)store.set('qr-startup-v1',nextStartup);writeStoredQqSettings(store,next);});settings=next;startup=nextStartup;
-        policyGeneration++; cancelActive(); return status();
+        if(changedPolicy){policyGeneration++;cancelActive();resetReconnect();} return status();
       }
       case 'operator.select': {
         assert(typeof payload.characterId === 'string' && payload.characterId, 'QQ_OPERATOR_REQUIRED', '请选择角色');
@@ -441,9 +449,9 @@ export function createQqService({databasePath, host, transport = null, now = Dat
         const selected = await bindControl(control,{purpose: 'qq-operator-bind', contextToken: context.contextToken, accountId: settings.accountId, characterId: payload.characterId});
         assert(selected?.contextToken && selected.accountId === settings.accountId && selected.characterId === payload.characterId && selected.lifeId && selected.operationId, 'QQ_OPERATOR_BINDING_INVALID', '宿主未验证接管角色的人生');
         cancelActive(); operator = {characterId: selected.characterId, lifeId: selected.lifeId, operationId: selected.operationId, displayName: labelOf(context, selected.characterId) ?? nameOk(selected.characterName, selected.characterId) ?? nameOk(selected.displayName, selected.characterId), generation: selected.operatorGeneration ?? (operator?.generation ?? 0) + 1};
-        store.set('operator', operator); return status();
+        store.set('operator', operator);resetReconnect(); return status();
       }
-      case 'connect': return connect(context);
+      case 'connect': restoreSuppressed=false;resetReconnect();return connect(context);
       case 'disconnect': await stopConnection(); return status();
       case 'setup.finish': {
         const selected=(context.managedConnections??[]).find(row=>row.platform==='qq'&&row.ref===payload.connectionRef&&row.accountId===context.accountId);
@@ -459,7 +467,7 @@ export function createQqService({databasePath, host, transport = null, now = Dat
         operator={characterId:bound.characterId,lifeId:bound.lifeId,operationId:bound.operationId,displayName:labelOf(context,bound.characterId)??nameOk(bound.characterName,bound.characterId)??nameOk(bound.displayName,bound.characterId),generation:bound.operatorGeneration};store.set('operator',operator);
         await connect();checkControl(control);
         await host.invoke('social.context.read',{purpose:'manage-plugin',principal,setupAction:'complete',autoResume:payload.autoResume},{signal:control.controller.signal});checkControl(control);
-        startup={autoResume:payload.autoResume,accountId:settings.accountId,connectionRef:settings.connectionRef,characterId:operator.characterId,lifeId:operator.lifeId,operationId:operator.operationId};store.set('qr-startup-v1',startup);restoreAttempted=false;
+        startup={autoResume:payload.autoResume,accountId:settings.accountId,connectionRef:settings.connectionRef,characterId:operator.characterId,lifeId:operator.lifeId,operationId:operator.operationId};store.set('qr-startup-v1',startup);restoreSuppressed=false;resetReconnect();
         return {...status(),startup:structuredClone(startup)};
         }catch(error){if(currentControl(control)){await stopConnection({invalidate:false});if(currentControl(control)){const disabled={...settings,enabled:false},stoppedStartup={autoResume:false};store.transaction(()=>{writeStoredQqSettings(store,disabled);store.set('qr-startup-v1',stoppedStartup);});settings=disabled;startup=stoppedStartup;}}throw error;}
       }
@@ -470,10 +478,10 @@ export function createQqService({databasePath, host, transport = null, now = Dat
         assert(settings.enabled && settings.accountId && settings.connectionRef && operator, 'QQ_OPERATOR_REQUIRED', '请先完成设置');
         assert(arrivalStartup>startupAccepted,'QQ_CONNECTION_REVOKED','启动恢复设置已撤销');startupAccepted=arrivalStartup;
         const scope = {accountId: settings.accountId, connectionRef: settings.connectionRef, characterId: operator.characterId, lifeId: operator.lifeId, operationId: operator.operationId},control=beginStartup();
-        if (!payload.autoResume) {startup = {...scope, autoResume: false};store.set('qr-startup-v1', startup);await host.invoke('social.context.read', {purpose: 'manage-plugin', principal, setupAction: 'complete', autoResume: false},{signal:control.controller.signal}).catch(() => {});checkStartup(control);return {...status(), startup: structuredClone(startup)};}
+        if (!payload.autoResume) {startup = {...scope, autoResume: false};store.set('qr-startup-v1', startup);resetReconnect();await host.invoke('social.context.read', {purpose: 'manage-plugin', principal, setupAction: 'complete', autoResume: false},{signal:control.controller.signal}).catch(() => {});checkStartup(control);return {...status(), startup: structuredClone(startup)};}
         await host.invoke('social.context.read', {purpose: 'manage-plugin', principal, setupAction: 'complete', autoResume: true},{signal:control.controller.signal});checkStartup(control);
         assert(settings.accountId === scope.accountId && settings.connectionRef === scope.connectionRef && operator && ['characterId', 'lifeId', 'operationId'].every(key => operator[key] === scope[key]), 'QQ_CONNECTION_REVOKED', '设置期间账号或角色已变化');
-        startup = {...scope, autoResume: true};store.set('qr-startup-v1', startup);restoreAttempted = false;
+        startup = {...scope, autoResume: true};store.set('qr-startup-v1', startup);restoreSuppressed=false;resetReconnect();
         return {...status(), startup: structuredClone(startup)};
       }
       case 'history.list': {
@@ -504,16 +512,17 @@ export function createQqService({databasePath, host, transport = null, now = Dat
     closePromise=(async()=>{await closeTransport().catch(() => {});await Promise.allSettled([...controls,...pending]);store.close();})();return closePromise;
   }
   async function onHostEventInternal(event) {
-    if(event?.type==='tick'&&startup.autoResume&&settings.enabled&&!connected&&!connecting&&!restoreAttempted){
-      restoreAttempted=true;
-      if(startup.accountId!==settings.accountId||startup.connectionRef!==settings.connectionRef||!operator||['characterId','lifeId','operationId'].some(key=>startup[key]!==operator[key]))return {status:'restore-needs-confirmation'};
+    if(event?.type==='tick'&&startup.autoResume&&settings.enabled&&!connected&&!connecting){
+      if(!restoreAllowed())return {status:'restore-needs-confirmation'};
+      if(reconnect.phase==='disconnected'||reconnect.nextAt!==null&&now()<reconnect.nextAt)return {status:'reconnect-waiting'};
+      const restoreAttempt=reconnect.attempt+1;reconnect={phase:'reconnecting',attempt:restoreAttempt,nextAt:null,error:reconnect.error};
       const control=beginControl(),saved=structuredClone(startup);
       try{
         const context=await host.invoke('social.context.read',{purpose:'plugin-background',principal:event.principal},{signal:control.controller.signal});checkControl(control);nameOperator(context);
         assert(context.accountId===saved.accountId,'QQ_CONNECTION_ACCOUNT_MISMATCH');
         const bound=await bindControl(control,{purpose:'qq-operator-bind',contextToken:context.contextToken,accountId:saved.accountId,characterId:saved.characterId,expectedLifeId:saved.lifeId,expectedOperationId:saved.operationId,restore:true});
         assert(bound?.contextToken&&bound.accountId===saved.accountId&&['characterId','lifeId','operationId'].every(key=>bound[key]===saved[key]),'QQ_RESTORE_LIFE_CHANGED');operator={...operator,generation:bound.operatorGeneration};store.set('operator',operator);await connect();checkControl(control);return {status:'restored'};
-      }catch{return {status:'restore-needs-confirmation'};}
+      }catch(error){if(!restoreAllowed())return {status:'restore-needs-confirmation'};const terminal=restoreAttempt>=5||['QQ_RESTORE_LIFE_CHANGED','QQ_RESTORE_NOT_AUTHORIZED','SOCIAL_LOGIN_EXPIRED','SOCIAL_ACCOUNT_CHANGED','QQ_CONNECTION_ACCOUNT_MISMATCH'].includes(error.code);reconnect={phase:terminal?'disconnected':'waiting',attempt:restoreAttempt,nextAt:terminal?null:now()+Math.min(30000,1000*2**restoreAttempt),error:error.code??'QQ_EVENT_CONNECTION_FAILED'};return {status:terminal?'restore-needs-confirmation':'reconnect-waiting'};}
     }
     if (event?.type === 'proactive.deliver') return deliverProactive(event.offerId);
     if (event?.type === 'lifecycle.revoke') {await stopConnection();return {status: 'revoked'};}

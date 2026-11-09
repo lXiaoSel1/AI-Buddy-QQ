@@ -12,15 +12,15 @@ export function assertBackendCapabilities(binding) {
 export class HostOneBotTransport {
   #host; #binding; #controller; #loop; #onDisconnect;
   constructor(host) { this.#host = host; }
-  async start({connectionRef, accountId, onEvent, onEpoch, onDisconnect}) {
+  async start({connectionRef, accountId, onEvent, onEpoch, onDisconnect, recipientPolicy}) {
     this.#onDisconnect = onDisconnect;
     const controller = this.#controller = new AbortController();let allocated;
     try {
-      allocated = await this.#host.invoke('connections.open', {platform: 'qq', connectionRef, accountId, newEventsOnly: true}, {signal: controller.signal});
+      allocated = await this.#host.invoke('connections.open', {platform: 'qq', connectionRef, accountId, newEventsOnly: true,...(recipientPolicy?{eventFilter:recipientPolicy()}:{})}, {signal: controller.signal});
       assert(!controller.signal.aborted && this.#controller === controller, 'QQ_CONNECTION_CANCELLED', '账号连接启动已取消');
       const binding = assertBackendCapabilities(allocated);
       assert(binding.accountId === accountId, 'QQ_CONNECTION_ACCOUNT_MISMATCH', '连接账号不匹配');
-      this.#binding = binding;this.lastError=null;this.lastCheckedAt=Date.now();onEpoch?.(binding);this.#loop = this.#pump(onEvent, onEpoch);return binding;
+      this.#binding = binding;this.lastError=null;this.lastCheckedAt=Date.now();onEpoch?.(binding);this.#loop = this.#pump(onEvent, onEpoch,recipientPolicy,controller,binding);return binding;
     } catch (error) {
       controller.abort();
       if (allocated?.connectionId) await this.#host.invoke('connections.close', {connectionId: allocated.connectionId, platform: 'qq'}).catch(() => {});
@@ -28,27 +28,30 @@ export class HostOneBotTransport {
       throw error;
     }
   }
-  async #pump(onEvent, onEpoch) {
-    let cursor = this.#binding.cursor ?? null,ackCursor=cursor??0;
-    while (!this.#controller.signal.aborted) {
+  async #pump(onEvent, onEpoch,recipientPolicy,controller,binding) {
+    let cursor = binding.cursor ?? null,ackCursor=cursor??0,count=0;const pending=[];
+    while (!controller.signal.aborted) {
       try {
-        const batch = await this.#host.invoke('connections.events', {connectionId: this.#binding.connectionId, accountId: this.#binding.accountId, cursor, ackCursor, newEventsOnly: true, waitMs: 20000}, {signal: this.#controller.signal});
-        if (this.#controller.signal.aborted) break;
+        while(pending[0]?.done){const first=pending.shift();count-=first.count;if(first.error)throw first.error;ackCursor=first.cursor??ackCursor;}
+        if(count>=1000){await pending[0].task;continue;}
+        const batch = await this.#host.invoke('connections.events', {connectionId: binding.connectionId, accountId: binding.accountId, cursor, ackCursor, newEventsOnly: true, waitMs: 20000,limit:Math.min(100,1000-count),...(recipientPolicy?{eventFilter:recipientPolicy()}:{})}, {signal: controller.signal});
+        if (controller.signal.aborted) break;
         // Each answered poll is a live check of this connection; the page shows it as the last check.
         this.lastCheckedAt = Date.now();
-        if (batch?.reconnected) onEpoch?.(this.#binding);
+        this.lastError=batch?.transportStatus??null;
+        if (batch?.reconnected) onEpoch?.(binding);
         if (batch?.cursor !== undefined) cursor = batch.cursor;
-        for (const event of batch?.events ?? []) { if (this.#controller.signal.aborted) break; await onEvent(event); }
-        if(!this.#controller.signal.aborted)ackCursor=cursor??ackCursor;
+        if(batch?.events?.length){const row={cursor,count:batch.events.length,done:false,error:null};count+=row.count;row.task=Promise.all(batch.events.map(event=>Promise.resolve().then(()=>onEvent(event)))).then(()=>{row.done=true;},error=>{row.error=error;row.done=true;});pending.push(row);}
         // A broken/non-blocking host must not create a hot loop.
         if (!batch?.events?.length) await new Promise(resolve => {
-          const signal = this.#controller.signal;
+          const signal = controller.signal;
           const done = () => {clearTimeout(timer);signal.removeEventListener('abort', done);resolve();};
           const timer = setTimeout(done, 250); signal.addEventListener('abort', done, {once: true});
           if (signal.aborted) done(); timer.unref?.();
         });
-      } catch (error) { if (this.#controller.signal.aborted) break; this.lastError = error.code ?? 'QQ_EVENT_CONNECTION_FAILED'; this.#onDisconnect?.(this.lastError); break; }
+      } catch (error) { if (controller.signal.aborted) break; this.lastError = error.code ?? 'QQ_EVENT_CONNECTION_FAILED'; this.#onDisconnect?.(this.lastError); break; }
     }
+    await Promise.allSettled(pending.map(row=>row.task));
   }
   async send({conversationType, peerId, text, requestId, contextToken, leaseId, generation, accountId, characterId, lifeId, operationId, senderId, conversationId, signal}) {
     if (!this.#binding || this.#controller?.signal.aborted || signal?.aborted) {
@@ -125,7 +128,7 @@ export class DirectOneBotTransport {
       if (this.#closed || this.#socket !== socket) return;
       try { const raw = JSON.parse(String(event.data)); if (raw.post_type === 'message') Promise.resolve(this.#onEvent?.(raw)).catch(() => {}); } catch {}
     });
-    socket.addEventListener('close', () => { if (!this.#closed && this.#socket === socket) {this.#socket = null;this.#onDisconnect?.('QQ_SOCKET_CLOSED');if (!opened && initial) {this.#closed = true;initial.reject(fail('QQ_SOCKET_FAILED'));return;} this.#timer = setTimeout(() => this.#connect(), 1000); this.#timer.unref?.();} });
+    socket.addEventListener('close', () => { if (!this.#closed && this.#socket === socket) {this.#socket = null;this.#closed=true;this.#onDisconnect?.('QQ_SOCKET_CLOSED');if (!opened && initial) initial.reject(fail('QQ_SOCKET_FAILED'));} });
     socket.addEventListener('error', () => { if (this.#closed || this.#socket !== socket) return;this.lastError = 'QQ_SOCKET_FAILED';if (!opened && initial) {this.#closed = true;socket.close();initial.reject(fail('QQ_SOCKET_FAILED'));} });
   }
   async send({conversationType, peerId, text, signal}) {

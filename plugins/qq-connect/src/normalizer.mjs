@@ -35,7 +35,8 @@ export function normalizeOneBotEvent(raw, binding, {epochSeconds, receivedAt = D
   assert(senderId !== selfId, 'QQ_SELF_EVENT', '忽略账号自己的发送回流');
   const sourceMessageId = platformMessageId(raw.message_id);
   assert(sourceMessageId, 'QQ_MESSAGE_ID_REQUIRED', '缺少稳定的平台消息 ID');
-  assert(Number.isSafeInteger(raw.time) && raw.time >= epochSeconds && raw.time * 1000 <= receivedAt + 30000, 'QQ_OFFLINE_OR_INVALID_TIME', '只处理本次连接之后的新事件');
+  assert(Number.isSafeInteger(raw.time) && raw.time >= epochSeconds, 'QQ_OFFLINE_OR_INVALID_TIME', '只处理本次连接之后的新事件');
+  assert(raw.time * 1000 <= receivedAt + 30000, 'QQ_CLOCK_SKEW', '电脑时间不准，可能收不到消息');
   const conversationType = raw.message_type;
   const peerId = conversationType === 'group' ? scalarId(raw.group_id) : senderId;
   assert(idString(peerId), 'QQ_EVENT_IDENTITY_INVALID', '会话 ID 无效');
