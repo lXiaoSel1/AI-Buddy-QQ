@@ -1,6 +1,6 @@
 {
   "name": "@ai-buddy/qq-connect",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "description": "AI Buddy QQ connection — scoped conversations, reply styles and durable receipts",
   "type": "module",
   "main": "lib/index.js",
@@ -26,7 +26,7 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "engines": {
     "node": ">=24.21.0",
-    "dsh": "0.2.1-rc.3"
+    "dsh": ">=0.2.1-rc.3"
   },
   "dependencies": {},
   "dsh": {
