@@ -1,3 +1,8 @@
+## 2.0.9 — 2026-11-09
+
+- 只改了兼容声明：需要 AI 酱 2.0.2 或更新版本、DSH 0.2.1-rc.3 或更新版本（之后的预览版也算），不再设上限；插件接口仍是 ^1.3.0。功能、权限、合同和数据格式和 2.0.8 相同。
+- Compatibility declarations only: AI Buddy 2.0.2 or later and DSH 0.2.1-rc.3 or later (later previews included), with no upper bound; the plugin bridge stays ^1.3.0. Features, capabilities, contract and data format are unchanged from 2.0.8.
+
 ## 2.0.8 — 2026-11-08
 
 - 沿用已验收的本机 2.0.7，公开设置撤销与异步回复竞态修复。旧记录、发送回执、授权边界、权限、合同与数据格式保持原值。本轮仅使用新版本及正式下载身份，不增加业务行为。
