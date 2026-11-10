@@ -3,11 +3,11 @@
 - 断线后自动重连：要打开「AI 酱启动时自动恢复这个账号和角色」；间隔逐次加长，连续 5 次失败后停下，可以手动重新连接。你自己断开、关掉授权或换了账号和角色时不重连。
 - 消息积压时不再关闭连接：名单以外的消息先过滤，不同会话互不等待，同一个会话仍按顺序回复；已经收下的消息先存在本机再处理。
 - 改回复风格不再取消正在生成的回复；改允许名单、换连接或关掉授权仍然会让旧回复作废。
-- 电脑时间不准时，状态里给出提示。状态里的版本号从包清单读取。需要 AI 酱 2.0.2 或更新版本；插件接口（^1.3.0）、权限和合同不变。
+- 电脑时间偏慢、可能收不到消息时，状态里给出提示。状态里的版本号从包清单读取。需要 AI 酱 2.0.2 或更新版本；插件接口（^1.3.0）、权限和合同不变。
 - Reconnects automatically after an unexpected disconnect when restore-on-start is on: growing intervals, stopping after 5 failed attempts, with a manual reconnect. A disconnect you asked for, a revoked authorization or a changed account or character is not reconnected.
 - A backlog no longer closes the connection: messages from outside the allow-list are filtered first, conversations do not wait for each other while each conversation still answers in order, and accepted messages are stored locally before processing.
 - Changing the reply style no longer cancels replies in progress; changing the allow-list, the connection or the authorization still invalidates old replies.
-- The status shows a warning when the computer clock is off, and the status version is read from the package manifest. Requires AI Buddy 2.0.2 or later; plugin bridge (^1.3.0), capabilities and contract are unchanged.
+- The status shows a warning when a slow computer clock may keep messages from arriving, and the status version is read from the package manifest. Requires AI Buddy 2.0.2 or later; plugin bridge (^1.3.0), capabilities and contract are unchanged.
 
 ## 2.0.9 — 2026-11-09
 

@@ -94,7 +94,7 @@
 - 换账号或取消时，旧的草稿和迟到的回复会作废；同一条回复只发一次，不会拆句群发。
 - 2.0.10 起，改回复风格不会取消正在生成的回复；改允许名单、换连接或关掉授权，仍然会让旧回复作废。
 - 2.0.10 起，消息很多、模型又慢的时候，名单以外的消息先被过滤掉，不同会话互不等待，同一个会话仍按顺序回复；已经收下的消息先存在本机再处理。
-- 电脑时间和实际时间差 30 秒以上时可能收不到消息，状态里会提示「电脑时间不准，可能收不到消息。」，请先同步 Windows 的时间。
+- 电脑时间和实际时间差 30 秒以上时可能收不到消息。电脑时间偏慢时，状态里会提示「电脑时间不准，可能收不到消息。」；偏快时不一定有提示。发现收不到消息，先同步 Windows 的时间。
 - 本体 2.0.13 起，AI 酱退出时会确认它自己启动的 NapCat 已经结束，不会去动别的 NapCat。
 - 没有用真实 QQ 账号做过“收到消息 → 模型回复 → 发回 QQ”的完整验收；已有的检查用的是合成数据和测试服务，详见 [docs/VALIDATION.md](docs/VALIDATION.md)。
 
@@ -180,7 +180,7 @@ The conversations tab lists messages and her replies per conversation; it is rea
 - **Reconnecting** (from 2.0.10): with "restore this account and character when AI Buddy starts" turned on, an unexpected disconnect is retried automatically with growing intervals and the status shows "Reconnecting (attempt n)". After 5 failed attempts it stops and you can reconnect by hand. A disconnect you asked for, a revoked authorization or a changed account or character is never reconnected automatically.
 - From 2.0.10, changing the reply style no longer cancels replies in progress; changing the allow-list, the connection or the authorization still invalidates old replies.
 - From 2.0.10, when many messages arrive and the model is slow, messages from outside the allow-list are filtered first, conversations do not wait for each other while each conversation still answers in order, and accepted messages are stored locally before they are processed.
-- When the computer clock is more than 30 seconds off, messages may not arrive; the status shows a clock warning. Sync the Windows clock first.
+- When the computer clock is more than 30 seconds off, messages may not arrive. A slow clock shows a clock warning in the status; a fast clock may show nothing. If messages stop arriving, sync the Windows clock first.
 - From AI Buddy 2.0.13, quitting AI Buddy makes sure the NapCat instance it started has ended, and never touches any other NapCat.
 - A real QQ inbound → model → outbound run has not been accepted; existing checks use synthetic data and test services (see [docs/VALIDATION.md](docs/VALIDATION.md)).
 

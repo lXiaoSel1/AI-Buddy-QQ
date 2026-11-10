@@ -43,9 +43,9 @@ Source is available under Apache 2.0 **with Commons Clause**, subject to unchang
 
 ## 2.0.10
 
-断线后自动重连（要打开启动时自动恢复，连续 5 次失败后停下）；名单以外的消息先过滤，不同会话互不等待；改回复风格不再取消正在生成的回复；电脑时间不准时给出提示；状态里的版本号改为读取包清单。
+断线后自动重连（要打开启动时自动恢复，连续 5 次失败后停下）；名单以外的消息先过滤，不同会话互不等待；改回复风格不再取消正在生成的回复；电脑时间偏慢、可能收不到消息时给出提示；状态里的版本号改为读取包清单。
 
-Reconnects automatically after an unexpected disconnect (with restore-on-start turned on; stops after 5 failed attempts), filters messages from outside the allow-list first so conversations do not wait for each other, keeps replies in progress when the reply style changes, warns when the computer clock is off, and reads the status version from the package manifest.
+Reconnects automatically after an unexpected disconnect (with restore-on-start turned on; stops after 5 failed attempts), filters messages from outside the allow-list first so conversations do not wait for each other, keeps replies in progress when the reply style changes, warns when a slow computer clock may keep messages from arriving, and reads the status version from the package manifest.
 
 ## 2.0.9
 
