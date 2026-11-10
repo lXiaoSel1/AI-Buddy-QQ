@@ -11,7 +11,7 @@
 
 [AI 酱本体](https://github.com/lXiaoSel1/AI-Buddy) · [B站陪伴](https://github.com/lXiaoSel1/AI-Buddy-Bilibili) · **QQ连接**（本仓库） · [一起玩牌](https://github.com/lXiaoSel1/AI-Buddy-Card-Games) · [语音](https://github.com/lXiaoSel1/AI-Buddy-Voice)
 
-**当前版本：2.0.9** · 需要 [AI 酱](https://github.com/lXiaoSel1/AI-Buddy) 2.0.2 或更新版本。这是 AI 酱的官方插件，在 AI 酱的 **扩展中心** 里安装，不用单独下载。
+**当前版本：2.0.10** · 需要 [AI 酱](https://github.com/lXiaoSel1/AI-Buddy) 2.0.2 或更新版本。这是 AI 酱的官方插件，在 AI 酱的 **扩展中心** 里安装，不用单独下载。
 
 选一位 AI 酱里的角色接管你的 QQ，让她用自己的口吻回复你允许的好友和群。群里默认只在被 @ 或被引用回复时才说话。每条回复是否发出、是否已经记进她的记忆，都在 AI 酱里看得到。不需要打开终端，也不用填端口或 Token。
 
@@ -78,7 +78,7 @@
 | 待补记 | 消息发出了，但记忆还没写好；点 **仅重试补记** 只补记忆，不会重发 QQ 消息，也不会再调用模型 |
 | 需要核对 | 需要你看一下 |
 
-**账号与接管者** 页显示谁在接管、允许了几位联系人和几个群、上次检查的时间，以及 **换一位角色…**、**暂停自动回复**、**断开连接…**。断开后不再收发消息；重新连接后也只处理新消息。
+**账号与接管者** 页显示谁在接管、允许了几位联系人和几个群、上次检查的时间，以及 **换一位角色…**、**暂停自动回复**、**断开连接…**。断开后不再收发消息；重新连接后也只处理新消息。2.0.10 起，打开了「AI 酱启动时自动恢复这个账号和角色」的话，连接意外断开时会自动重连：间隔逐次加长，状态显示「正在重新连接（第 n 次）」；连续 5 次没连上就停下，显示「连接断开了」，点 **重新连接** 再试。你自己点了断开、关掉了授权，或者换了账号和角色，都不会自动重连。
 
 <img src="docs/images/qq-account-status.webp" width="800" alt="账号与接管者：DeepSeek 正在接管演示 QQ 账号，运行中；下方是启动时自动恢复开关和账号信息（演示数据）">
 
@@ -92,6 +92,10 @@
 - **模型**：她优先用接管角色在 AI 酱里绑定的聊天连接，没有绑定就按 AI 酱的默认连接；不会悄悄换模型。每条回复都会调用模型，模型服务可能收费。
 - **工作任务**：「聊天与工作」页右侧有一栏「可信主人的工作指令」，它需要另一个还没公开的工作插件，本版用不了；普通 QQ 聊天不受影响。扫码、选接管角色和允许名单都不等于授权她替你办工作任务。
 - 换账号或取消时，旧的草稿和迟到的回复会作废；同一条回复只发一次，不会拆句群发。
+- 2.0.10 起，改回复风格不会取消正在生成的回复；改允许名单、换连接或关掉授权，仍然会让旧回复作废。
+- 2.0.10 起，消息很多、模型又慢的时候，名单以外的消息先被过滤掉，不同会话互不等待，同一个会话仍按顺序回复；已经收下的消息先存在本机再处理。
+- 电脑时间和实际时间差 30 秒以上时可能收不到消息。电脑时间偏慢时，状态里会提示「电脑时间不准，可能收不到消息。」；偏快时不一定有提示。发现收不到消息，先同步 Windows 的时间。
+- 本体 2.0.13 起，AI 酱退出时会确认它自己启动的 NapCat 已经结束，不会去动别的 NapCat。
 - 没有用真实 QQ 账号做过“收到消息 → 模型回复 → 发回 QQ”的完整验收；已有的检查用的是合成数据和测试服务，详见 [docs/VALIDATION.md](docs/VALIDATION.md)。
 
 ## 数据与隐私
@@ -104,7 +108,7 @@
 
 ## 技术说明
 
-插件包名 `@ai-buddy/qq-connect`，版本 2.0.9，需要 AI Buddy >= 2.0.2 和 DSH >= 0.2.1-rc.3，都只写下限。2.0.9 只改了兼容声明，功能、桥接（^1.3.0）、协议、权限和数据格式都和 2.0.8 相同；数据 schema 为 1，minimumWriter 为 `0.1.0-dev.2`，旧版本不能写入新数据，恢复数据库也不会撤回已经发出的消息。连接组件 NapCat 只在你点「扫码连接」时由 AI 酱从官方上游准备固定版本，本仓库不镜像、修改或捆绑 NapCat 或 QQ 客户端；已有手动 OneBot 配置的，可以在 **扩展中心 → 账号连接** 的「高级连接」里使用。默认值见 [`DEFAULTS.json`](plugins/qq-connect/DEFAULTS.json)，更新记录见 [CHANGELOG.md](CHANGELOG.md)。 2.0.8 修复了设置撤销和迟到回复之间的竞态，没有新增设置项或回复功能，见 [2.0.8 发行说明](RELEASE-NOTES-2.0.8.md)。
+插件包名 `@ai-buddy/qq-connect`，版本 2.0.10，需要 AI Buddy >= 2.0.2 和 DSH >= 0.2.1-rc.3，都只写下限。2.0.10 加了断线重连，修了消息积压和设置变更的处理，桥接（^1.3.0）、合同和权限都和 2.0.9 相同；数据 schema 为 1，minimumWriter 为 `0.1.0-dev.2`，旧版本不能写入新数据，恢复数据库也不会撤回已经发出的消息。连接组件 NapCat 只在你点「扫码连接」时由 AI 酱从官方上游准备固定版本，本仓库不镜像、修改或捆绑 NapCat 或 QQ 客户端；已有手动 OneBot 配置的，可以在 **扩展中心 → 账号连接** 的「高级连接」里使用。默认值见 [`DEFAULTS.json`](plugins/qq-connect/DEFAULTS.json)，更新记录见 [CHANGELOG.md](CHANGELOG.md)。 2.0.8 修复了设置撤销和迟到回复之间的竞态，没有新增设置项或回复功能，见 [2.0.8 发行说明](RELEASE-NOTES-2.0.8.md)。
 
 开发需要固定的 Node 24.21.0、npm 11.19.0 和 esbuild 0.28.2，在新的 checkout 里运行：
 
@@ -132,7 +136,7 @@ NapCat 是第三方项目，适用它自己的许可，由 AI 酱在连接时从
 
 [AI Buddy app](https://github.com/lXiaoSel1/AI-Buddy) · [Bilibili Companion](https://github.com/lXiaoSel1/AI-Buddy-Bilibili) · **QQ Connect** (this repository) · [Card Games](https://github.com/lXiaoSel1/AI-Buddy-Card-Games) · [Voice](https://github.com/lXiaoSel1/AI-Buddy-Voice)
 
-**Version 2.0.9** · requires [AI Buddy](https://github.com/lXiaoSel1/AI-Buddy) 2.0.2 or later. It is an official AI Buddy plugin, installed from AI Buddy's **Extensions** center; there is nothing to download separately.
+**Version 2.0.10** · requires [AI Buddy](https://github.com/lXiaoSel1/AI-Buddy) 2.0.2 or later. It is an official AI Buddy plugin, installed from AI Buddy's **Extensions** center; there is nothing to download separately.
 
 Choose a character from AI Buddy to take over your QQ account and answer, in her own voice, the friends and groups you allow. In groups she speaks only when @-mentioned or replied to, by default. AI Buddy shows whether each reply was sent and whether it has been saved to her memory. No terminal, ports or tokens are needed. The pictures above show the Chinese interface with demo data.
 
@@ -173,6 +177,11 @@ The conversations tab lists messages and her replies per conversation; it is rea
 - **Model**: she uses the chat connection bound to the character in AI Buddy, or AI Buddy's default; models are never switched quietly. Every reply calls the model, which may cost money.
 - **Work tasks**: the conversations tab has a side panel for trusted-owner work instructions. It needs another plugin that has not been released, so it is unavailable in this version; ordinary QQ chat is unaffected. Scanning, choosing a character and the allow-list do not authorize work tasks.
 - Changing accounts or cancelling discards old drafts and late replies; each reply is sent once and never split into a broadcast.
+- **Reconnecting** (from 2.0.10): with "restore this account and character when AI Buddy starts" turned on, an unexpected disconnect is retried automatically with growing intervals and the status shows "Reconnecting (attempt n)". After 5 failed attempts it stops and you can reconnect by hand. A disconnect you asked for, a revoked authorization or a changed account or character is never reconnected automatically.
+- From 2.0.10, changing the reply style no longer cancels replies in progress; changing the allow-list, the connection or the authorization still invalidates old replies.
+- From 2.0.10, when many messages arrive and the model is slow, messages from outside the allow-list are filtered first, conversations do not wait for each other while each conversation still answers in order, and accepted messages are stored locally before they are processed.
+- When the computer clock is more than 30 seconds off, messages may not arrive. A slow clock shows a clock warning in the status; a fast clock may show nothing. If messages stop arriving, sync the Windows clock first.
+- From AI Buddy 2.0.13, quitting AI Buddy makes sure the NapCat instance it started has ended, and never touches any other NapCat.
 - A real QQ inbound → model → outbound run has not been accepted; existing checks use synthetic data and test services (see [docs/VALIDATION.md](docs/VALIDATION.md)).
 
 ### Data and privacy
@@ -181,7 +190,7 @@ AI Buddy creates no account for you and ships none. Login state, cookies and tok
 
 ### Technical notes
 
-Package `@ai-buddy/qq-connect` 2.0.9, requires AI Buddy >= 2.0.2 and DSH >= 0.2.1-rc.3, both lower bounds only. 2.0.9 changes only these compatibility declarations; features, bridge (^1.3.0), protocol, permissions and data format are the same as 2.0.8; schema 1, minimumWriter `0.1.0-dev.2`. NapCat is prepared by AI Buddy from its official upstream, pinned, only when you click Connect; this repository does not mirror, modify or bundle NapCat or the QQ client. An existing manual OneBot setup can be used under the advanced connection in **Extensions → Accounts**. Development uses Node 24.21.0, npm 11.19.0 and esbuild 0.28.2: `npm ci`, `npm test`, `npm run build`, `npm run verify:artifacts`, `npm run repro`. See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) and [docs/VALIDATION.md](docs/VALIDATION.md). 2.0.8 fixes a race between revoking settings and late replies and adds no new settings or reply features; see the [2.0.8 release notes](RELEASE-NOTES-2.0.8.md).
+Package `@ai-buddy/qq-connect` 2.0.10, requires AI Buddy >= 2.0.2 and DSH >= 0.2.1-rc.3, both lower bounds only. 2.0.10 adds automatic reconnection and fixes backlog and settings-change handling; bridge (^1.3.0), contract and permissions are the same as 2.0.9; schema 1, minimumWriter `0.1.0-dev.2`. NapCat is prepared by AI Buddy from its official upstream, pinned, only when you click Connect; this repository does not mirror, modify or bundle NapCat or the QQ client. An existing manual OneBot setup can be used under the advanced connection in **Extensions → Accounts**. Development uses Node 24.21.0, npm 11.19.0 and esbuild 0.28.2: `npm ci`, `npm test`, `npm run build`, `npm run verify:artifacts`, `npm run repro`. See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) and [docs/VALIDATION.md](docs/VALIDATION.md). 2.0.8 fixes a race between revoking settings and late replies and adds no new settings or reply features; see the [2.0.8 release notes](RELEASE-NOTES-2.0.8.md).
 
 ### License and third parties
 

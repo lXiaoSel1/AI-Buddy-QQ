@@ -1,6 +1,6 @@
 # AI Buddy QQ / QQ连接
 
-`@ai-buddy/qq-connect` **2.0.9** · AI Buddy **>= 2.0.2** · DSH **>= 0.2.1-rc.3** · source-available: Apache 2.0 + Commons Clause.
+`@ai-buddy/qq-connect` **2.0.10** · AI Buddy **>= 2.0.2** · DSH **>= 0.2.1-rc.3** · source-available: Apache 2.0 + Commons Clause.
 
 让指定角色通过宿主受管理连接回应你允许的 QQ 会话，保留角色口吻、独立回复风格与实际发送回执。此版本沿用本机 2.0.7 的已验收功能；桥接、协议 hash、权限与数据格式不变。
 
@@ -33,13 +33,19 @@ Work 插件不在本轮公开安装集合中。未装、停用或不具工作权
 
 ## English
 
-AI Buddy QQ 2.0.9 connects an explicitly selected character to allowlisted QQ conversations through the host. It requires AI Buddy >= 2.0.2. AI Buddy creates no extra service account or platform signup. Only explicit Connect prepares the pinned, unmodified official NapCat component and starts the user's scan-login flow; this repository does not mirror or bundle it. Installation, updates and scanning alone grant no chat, model or owner-work permission. The plugin starts disabled and contains no credentials or QQ runtime.
+AI Buddy QQ 2.0.10 connects an explicitly selected character to allowlisted QQ conversations through the host. It requires AI Buddy >= 2.0.2. AI Buddy creates no extra service account or platform signup. Only explicit Connect prepares the pinned, unmodified official NapCat component and starts the user's scan-login flow; this repository does not mirror or bundle it. Installation, updates and scanning alone grant no chat, model or owner-work permission. The plugin starts disabled and contains no credentials or QQ runtime.
 
 Conversation reply style overrides the QQ default, which otherwise inherits the general style. Verified sender, mention and reply context preserves identity. Media interpretation depends on actual backend/model capabilities and metadata; unsupported audio or visual content is not presented as understood. New connection epochs consume only new events, not platform history. Durable deduplication and send receipts distinguish actual delivery, unknown sends, read status and memory completion. Memory-only recovery never resends a completed/unknown message.
 
 Owner work needs separately verified owner scope and a compatible installed Work plugin; Work is excluded from this public installation set and its absence does not block ordinary QQ chat. Group roles, quoted content and model output cannot authorize work. Uninstall retains history by default. The accepted integration baseline had core 2825 pass / 4 skip, social 476 pass / 4 skip, real Electron synthetic-scene checks and both plugins loaded after a formal install. It did not accept a real QQ inbound -> model -> outbound roundtrip. This release keeps the accepted local 2.0.7 functional baseline.
 
 Source is available under Apache 2.0 **with Commons Clause**, subject to unchanged `LICENSE.md`. Existing third-party notices and host artwork/reference-rights qualifications remain; this repository does not claim all such rights are cleared. [Host](https://github.com/lXiaoSel1/AI-Buddy) · [Extension directory](https://github.com/lXiaoSel1/AI-Buddy-Extensions) · [Plugin source and releases](https://github.com/lXiaoSel1/AI-Buddy-QQ).
+
+## 2.0.10
+
+断线后自动重连（要打开启动时自动恢复，连续 5 次失败后停下）；名单以外的消息先过滤，不同会话互不等待；改回复风格不再取消正在生成的回复；电脑时间偏慢、可能收不到消息时给出提示；状态里的版本号改为读取包清单。
+
+Reconnects automatically after an unexpected disconnect (with restore-on-start turned on; stops after 5 failed attempts), filters messages from outside the allow-list first so conversations do not wait for each other, keeps replies in progress when the reply style changes, warns when a slow computer clock may keep messages from arriving, and reads the status version from the package manifest.
 
 ## 2.0.9
 
